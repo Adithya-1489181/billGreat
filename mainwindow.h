@@ -23,7 +23,7 @@ private slots:
     void editRow(int row);
     void deleteRow(int row);
     void updateItemInTable(int row, QString newItemName, int newQuantity, double newPrice);
-
+    void openCustomerDetailsDialog();  // Add this function declaration
 private:
     Ui::MainWindow *ui;
     double totalAmount = 0.0;  // Store total amount

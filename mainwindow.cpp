@@ -11,6 +11,25 @@ void MainWindow::openForm() {
     dialog->exec();
 }
 
+void MainWindow::openCustomerDetailsDialog() {
+    CustomerDetailDialogue customerDialog(this);
+
+    if (customerDialog.exec() == QDialog::Accepted) {
+        QString customerName = customerDialog.getCustomerName();
+        QString customerPhone = customerDialog.getCustomerPhone();
+
+        if (customerName.isEmpty() || customerPhone.isEmpty()) {
+            QMessageBox::warning(this, "Warning", "Customer details are required!");
+            return;
+        }
+
+        QMessageBox::information(this, "Customer Saved",
+                                 QString("Customer Name: %1\nCustomer Phone: %2")
+                                     .arg(customerName)
+                                     .arg(customerPhone));
+    }
+}
+
 void MainWindow::addItemToTable(QString itemName, int quantity, double price) {
     int row = ui->tableWidget->rowCount();
     ui->tableWidget->insertRow(row);
@@ -147,8 +166,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
     connect(ui->btnAdd, &QPushButton::clicked, this, &MainWindow::openForm);
+    // Connect the "Customer Details" button to open the popup
+    connect(ui->btnCustomerDetails, &QPushButton::clicked, this, &MainWindow::openCustomerDetailsDialog);
 
 }
+
 
 MainWindow::~MainWindow() {
     delete ui;

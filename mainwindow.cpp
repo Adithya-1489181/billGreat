@@ -4,6 +4,9 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include "additemdialog.h"
+#include "customerdetaildialogue.h"
+#include <QMessageBox>
+
 
 void MainWindow::openForm() {
     AddItemDialog *dialog = new AddItemDialog(this);

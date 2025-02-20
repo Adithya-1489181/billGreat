@@ -54,7 +54,7 @@
      </widget>
     </item>
     <item row="2" column="0">
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="btnCustomerDetails">
       <property name="text">
        <string>Costumer Details</string>
       </property>

@@ -13,8 +13,6 @@ AddItemDialog::AddItemDialog(QWidget *parent, int rowIndex, QString itemName, in
     ui->spinBoxQuantity->setRange(0, 99999); // Allows values from 0 to 99999
     ui->doubleSpinBoxPrice->setMaximum(99999.99); // Allows large values
     ui->doubleSpinBoxPrice->setDecimals(2); // Allows up to 2 decimal places
-
-
 }
 
 AddItemDialog::~AddItemDialog() {

@@ -1,11 +1,21 @@
 #include "mainwindow.h"
-#include <QHeaderView>
 #include "./ui_mainwindow.h"
-#include <QGuiApplication>
-#include <QScreen>
 #include "additemdialog.h"
 #include "customerdetaildialogue.h"
+#include <QHeaderView>
+#include <QGuiApplication>
+#include <QScreen>
 #include <QMessageBox>
+#include <QTextDocument>
+#include <QFileDialog>
+#include <QPrintDialog>
+#include <QDateTime>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QPainter>
+#include <QPrinter>
+
+
 
 
 void MainWindow::openForm() {
@@ -139,6 +149,131 @@ void MainWindow::updateTotalLabel() {
     ui->lblTotal->setText(QString("Total: ₹%1").arg(totalAmount, 0, 'f', 2));
 }
 
+void MainWindow::generatePDF() {
+    QString fileName = QFileDialog::getSaveFileName(this, "Save PDF", "Bill.pdf", "PDF Files (*.pdf)");
+    if (fileName.isEmpty()) return;
+
+    QPrinter printer(QPrinter::PrinterResolution);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOutputFileName(fileName);
+    printer.setPageSize(QPageSize(QPageSize::A4));
+
+    QPainter painter;
+    if (!painter.begin(&printer)) {
+        QMessageBox::warning(this, "Error", "Failed to create PDF!");
+        return;
+    }
+
+    // Set font
+    QFont font("Arial", 12);
+    painter.setFont(font);
+
+    int yPos = 30;  // Initial Y position
+
+    // **Header**
+    painter.setFont(QFont("Arial", 10, QFont::Bold));
+    painter.drawText(10, yPos, "Prop:Girisha K");
+    painter.setFont(QFont("Arial", 10, QFont::Bold));
+    painter.drawText(415, yPos, "GSTIN: 29AQFPK6091E1ZO");
+    yPos += 20;
+    painter.setFont(QFont("Arial", 10, QFont::Bold));
+    painter.drawText(10, yPos, "MOB:9901424996");
+    yPos += 20;
+    painter.setFont(QFont("Arial", 12, QFont::Bold));
+    painter.drawText(225, yPos, "COMPOSITION DEALER");
+    yPos += 15;
+    painter.setFont(QFont("Arial", 10, QFont::Bold));
+    painter.drawText(261, yPos, "Bill of Supply");
+    yPos += 28;
+
+    painter.setFont(QFont("Times New Roman", 18, QFont::Bold));
+    painter.drawText(205, yPos, "ADITHYA SERVICES");
+    yPos += 20;
+
+    painter.setFont(QFont("Arial", 10));
+    painter.drawText(145, yPos, "D. No. 2-21(E) Soorya, Idkidu Village & Post, Bantwal T. Q. 574220");
+    yPos += 20;
+
+    painter.drawLine(10, yPos, 550, yPos);  // Header Bottom Border
+    yPos += 30;
+
+    // **Bill Info**
+    painter.setFont(QFont("Arial", 12));
+    painter.drawText(10, yPos, QString("Bill No: %1").arg(53));  // Replace with actual Bill Number
+    painter.drawText(400, yPos, QString("Date: %1").arg(QDate::currentDate().toString("dd-MM-yyyy")));
+    yPos += 30;
+
+    painter.drawText(10, yPos, "To: _________________________");
+    painter.drawText(400, yPos, "GSTIN: __________________");
+    yPos += 40;
+
+    // **Table Headers**
+    int xStart = 10;
+    int colWidths[] = {40, 200, 100, 50, 80, 80};  // Column width distribution
+
+    painter.setFont(QFont("Arial", 11, QFont::Bold));
+    QStringList headers = {"Sl. No.", "Description", "HSN Code", "Qty", "Rate (₹)", "Amount (₹)"};
+
+    int x = xStart;
+    for (int i = 0; i < headers.size(); ++i) {
+        painter.drawText(x, yPos, headers[i]);
+        x += colWidths[i];
+    }
+    yPos += 20;
+
+    painter.drawLine(10, yPos, 550, yPos);  // Header Bottom Border
+    yPos += 10;
+
+    // **Table Content (Sample)**
+    painter.setFont(QFont("Arial", 10));
+
+    for (int row = 0; row < ui->tableWidget->rowCount(); ++row) {
+        x = xStart;
+        QString itemName = ui->tableWidget->item(row, 0)->text();
+        QString qty = ui->tableWidget->item(row, 1)->text();
+        QString rate = ui->tableWidget->item(row, 2)->text();
+        QString amount = ui->tableWidget->item(row, 3)->text();
+
+        QStringList rowData = {QString::number(row + 1), itemName, "", qty, rate, amount};  // HSN left blank
+
+        for (int i = 0; i < rowData.size(); ++i) {
+            painter.drawText(x, yPos, rowData[i]);
+            x += colWidths[i];
+        }
+        yPos += 20;
+    }
+
+    painter.drawLine(10, yPos, 550, yPos);  // Table Bottom Border
+    yPos += 30;
+
+    // **Total Amount**
+    painter.setFont(QFont("Arial", 12, QFont::Bold));
+    painter.drawText(467, yPos, QString("Total: ₹%1").arg(totalAmount));  // Replace with actual total amount
+    yPos += 40;
+
+    // **Signature and Footer**
+    painter.setFont(QFont("Arial", 12, QFont::Bold));
+    painter.drawText(10, yPos, "Rupees in Words: ___________________________");
+    yPos += 40;
+
+    painter.setFont(QFont("Arial", 12, QFont::Bold));
+    painter.drawText(430, yPos, "For Adithya Services");
+    yPos += 50;
+
+    painter.drawText(460, yPos, "Signature");
+
+    // End PDF creation
+    painter.end();
+
+    QMessageBox::information(this, "Success", "Bill saved as PDF!");
+}
+
+
+
+
+
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -169,9 +304,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
     connect(ui->btnAdd, &QPushButton::clicked, this, &MainWindow::openForm);
-    // Connect the "Customer Details" button to open the popup
     connect(ui->btnCustomerDetails, &QPushButton::clicked, this, &MainWindow::openCustomerDetailsDialog);
-
+    connect(ui->btnGeneratePDF, &QPushButton::clicked, this, &MainWindow::generatePDF);
 }
 
 

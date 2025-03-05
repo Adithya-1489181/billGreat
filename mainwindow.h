@@ -18,12 +18,13 @@ public:
     ~MainWindow();
 
 private slots:
-    void openForm();  // Add this line
-    void addItemToTable(QString itemName, int quantity, double price);  // New slot to handle data
+    void openForm();
+    void addItemToTable(QString itemName, int quantity, double price);
     void editRow(int row);
     void deleteRow(int row);
     void updateItemInTable(int row, QString newItemName, int newQuantity, double newPrice);
-    void openCustomerDetailsDialog();  // Add this function declaration
+    void openCustomerDetailsDialog();
+     void generatePDF();
 private:
     Ui::MainWindow *ui;
     double totalAmount = 0.0;  // Store total amount

@@ -25,6 +25,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         additemdialog.h additemdialog.cpp additemdialog.ui
         customerdetaildialogue.h customerdetaildialogue.cpp customerdetaildialogue.ui
+        billgenerator.h billgenerator.cpp billgenerator.ui
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET billGreat APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -43,6 +44,9 @@ else()
         )
     endif()
 endif()
+
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets PrintSupport)
+target_link_libraries(billGreat PRIVATE Qt6::Widgets Qt6::PrintSupport)
 
 target_link_libraries(billGreat PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
